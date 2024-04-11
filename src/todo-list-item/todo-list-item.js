@@ -15,8 +15,8 @@ export default class TodoListItem extends Component {
 
     return (
       <div className="view">
-        <input className="toggle" type="checkbox" />
-        <label className={classNames} onClick={onToogleCompleted}>
+        <input className="toggle" type="checkbox" onChange={onToogleCompleted} checked={completed} />
+        <label className={classNames}>
           <span className="description">{label}</span>
           <span className="created">{timeLabel}</span>
         </label>

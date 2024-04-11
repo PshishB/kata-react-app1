@@ -136,4 +136,4 @@ class App extends Component {
   }
 }
 
-createRoot(<App />, document.getElementById('root'));
+createRoot(document.getElementById('root')).render(<App />);
