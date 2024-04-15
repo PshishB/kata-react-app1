@@ -6,7 +6,8 @@ import Timer from '../timer/timer';
 
 export default class TodoListItem extends Component {
   render() {
-    const { label, timeLabel, onToogleCompleted, onDeleted, completed } = this.props;
+    const { label, timeLabel, onToogleCompleted, onDeleted, completed, timerTime, onPauseClick, onPlayClick } =
+      this.props;
 
     let classNames = '';
 
@@ -19,7 +20,7 @@ export default class TodoListItem extends Component {
         <input className="toggle" type="checkbox" onChange={onToogleCompleted} checked={completed} />
         <label className={classNames}>
           <span className="description">{label}</span>
-          <Timer />
+          <Timer timerTime={timerTime} onPauseClick={onPauseClick} onPlayClick={onPlayClick} />
           <span className="created">{timeLabel}</span>
         </label>
         <button className="icon icon-edit"></button>

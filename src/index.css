@@ -242,6 +242,9 @@ body {
 	font-size: 13px;
 	color: gray;
 }
+.todo-list li label .description:nth-of-type(2) {
+	margin-right: 50px;
+}
 
 .todo-list li label .title {
 	word-break: break-all;
@@ -306,7 +309,7 @@ body {
 }
 
 .icon-pause:after {
-	margin-left: 45px;
+	margin-left: 60px;
 	content: '⏸';
 	vertical-align: -15%;
 }

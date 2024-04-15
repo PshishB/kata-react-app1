@@ -4,13 +4,19 @@ import PropTypes from 'prop-types';
 import TodoListItem from '../todo-list-item/todo-list-item';
 import './todo-list.css';
 
-const TodoList = ({ todos, onDeleted, onToogleCompleted }) => {
+const TodoList = ({ todos, onDeleted, onToogleCompleted, onPlayClick, onPauseClick }) => {
   const elements = todos.map((item) => {
     const { id, ...itemProps } = item;
 
     return (
       <li key={id}>
-        <TodoListItem {...itemProps} onDeleted={() => onDeleted(id)} onToogleCompleted={() => onToogleCompleted(id)} />
+        <TodoListItem
+          {...itemProps}
+          onDeleted={() => onDeleted(id)}
+          onToogleCompleted={() => onToogleCompleted(id)}
+          onPlayClick={() => onPlayClick(id)}
+          onPauseClick={() => onPauseClick(id)}
+        />
       </li>
     );
   });
