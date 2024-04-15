@@ -29,7 +29,7 @@ class App extends Component {
       timeReal: JSON.stringify(new Date()),
       completed: classic === 'completed' ? true : false,
       id: this.maxId++,
-      timerTime: 12,
+      timerTime: 0,
     };
   }
 
