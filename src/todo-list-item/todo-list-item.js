@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
 import './todo-list-item.css';
+import Timer from '../timer/timer';
 
 export default class TodoListItem extends Component {
   render() {
@@ -18,6 +19,7 @@ export default class TodoListItem extends Component {
         <input className="toggle" type="checkbox" onChange={onToogleCompleted} checked={completed} />
         <label className={classNames}>
           <span className="description">{label}</span>
+          <Timer />
           <span className="created">{timeLabel}</span>
         </label>
         <button className="icon icon-edit"></button>
