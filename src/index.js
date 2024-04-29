@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useEffect, useState } from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import { createRoot } from 'react-dom/client';
 
@@ -8,32 +8,32 @@ import Footer from './footer/footer';
 
 import './index.css';
 
-class App extends Component {
-  maxId = 100;
+const App = () => {
+  let maxId = 100;
 
-  state = {
-    todoData: [
-      this.createTodoItem('Completed task', 'completed'),
-      this.createTodoItem('Editing task', 'editing'),
-      this.createTodoItem('Active task', 'view'),
-    ],
-    filter: 'all',
-    timerIntervals: {},
-  };
-
-  createTodoItem(label, classic = 'view') {
+  const createTodoItem = (label, classic = 'view') => {
     return {
       label,
       classic,
       timeLabel: 'Created ' + formatDistanceToNow(new Date(), { includeSeconds: true }) + ' ago',
       timeReal: JSON.stringify(new Date()),
       completed: classic === 'completed' ? true : false,
-      id: this.maxId++,
+      id: maxId++,
       timerTime: 0,
     };
-  }
+  };
 
-  toogleProperty(arr, id, propName) {
+  const [todoData, setTodoData] = useState([
+    createTodoItem('Completed task', 'completed'),
+    createTodoItem('Editing task', 'editing'),
+    createTodoItem('Active task', 'view'),
+  ]);
+
+  const [filter, setFilter] = useState('all');
+
+  const [timerIntervals, setTimerIntervals] = useState({});
+
+  const toogleProperty = (arr, id, propName) => {
     return arr.map((item) => {
       if (item.id === id) {
         return {
@@ -43,69 +43,42 @@ class App extends Component {
       }
       return item;
     });
-  }
+  };
 
-  componentDidMount() {
-    this.updateTimeInterval = setInterval(this.updateTimeCreated, 1000);
-  }
-
-  componentWillUnmount() {
-    clearInterval(this.updateTimeInterval);
-  }
-
-  updateTimeCreated = () => {
-    this.setState((prevState) => ({
-      todoData: prevState.todoData.map((todo) => ({
+  const updateTimeCreated = () => {
+    setTodoData((prevTodoData) => {
+      return prevTodoData.map((todo) => ({
         ...todo,
-        timeLabel: 'Created ' + formatDistanceToNow(JSON.parse(todo.timeReal), { includeSeconds: true }) + ' ago',
-      })),
-    }));
-  };
-
-  onAddItem = (label) => {
-    const newItem = this.createTodoItem(label);
-
-    this.setState(({ todoData }) => {
-      const newArray = [...todoData, newItem];
-      return {
-        todoData: newArray,
-      };
+        timeLabel:
+          'Created ' + formatDistanceToNow(new Date(JSON.parse(todo.timeReal)), { includeSeconds: true }) + ' ago',
+      }));
     });
   };
 
-  onFiltterItems = (filterValue) => {
-    this.setState({
-      filter: filterValue,
+  useEffect(() => {
+    const updateTimeInterval = setInterval(updateTimeCreated, 1000);
+    return () => clearInterval(updateTimeInterval);
+  }, []);
+
+  const onAddItem = (label) => {
+    const newItem = createTodoItem(label);
+    setTodoData((prevTodoData) => [...prevTodoData, newItem]);
+  };
+
+  const onFiltterItems = (filterValue) => {
+    setFilter(filterValue);
+  };
+
+  const deleteItem = (id) => {
+    setTodoData((prevTodoData) => {
+      const idx = prevTodoData.findIndex((el) => el.id === id);
+      return [...prevTodoData.slice(0, idx), ...prevTodoData.slice(idx + 1)];
     });
   };
 
-  deleteItem = (id) => {
-    this.setState(({ todoData }) => {
-      const idx = todoData.findIndex((el) => el.id === id);
-      const newArray = todoData.slice(0, idx).concat(todoData.slice(idx + 1));
-      return {
-        todoData: newArray,
-      };
-    });
-  };
-
-  deleteCompletedItems = () => {
-    this.setState(({ todoData }) => {
-      const newArray = todoData.filter((el) => !el.completed);
-      return {
-        todoData: newArray,
-      };
-    });
-  };
-
-  timerInterval = this.state.todoData.reduce((acc, el) => {
-    acc[el.id] = null;
-    return acc;
-  }, {});
-
-  increaseTimer = (id) => {
-    this.setState((prevState) => ({
-      todoData: prevState.todoData.map((todo) => {
+  const increaseTimer = (id) => {
+    setTodoData((prevTodoData) =>
+      prevTodoData.map((todo) => {
         if (todo.id === id) {
           return {
             ...todo,
@@ -113,75 +86,68 @@ class App extends Component {
           };
         }
         return todo;
-      }),
-    }));
+      })
+    );
   };
-  onPlayClick = (id) => {
-    if (!this.state.timerIntervals[id]) {
-      const timerInterval = setInterval(() => this.increaseTimer(id), 1000);
-      this.setState((prevState) => ({
-        timerIntervals: {
-          ...prevState.timerIntervals,
-          [id]: timerInterval,
-        },
+
+  const onPlayClick = (id) => {
+    if (!timerIntervals[id]) {
+      const timerInterval = setInterval(() => increaseTimer(id), 1000);
+      setTimerIntervals((prevTimerIntervals) => ({
+        ...prevTimerIntervals,
+        [id]: timerInterval,
       }));
     }
   };
 
-  onPauseClick = (id) => {
-    clearInterval(this.state.timerIntervals[id]);
-    this.setState((prevState) => ({
-      timerIntervals: {
-        ...prevState.timerIntervals,
-        [id]: null,
-      },
+  const onPauseClick = (id) => {
+    clearInterval(timerIntervals[id]);
+    setTimerIntervals((prevTimerIntervals) => ({
+      ...prevTimerIntervals,
+      [id]: null,
     }));
   };
 
-  onToogleCompleted = (id) => {
-    this.setState(({ todoData }) => {
-      return {
-        todoData: this.toogleProperty(todoData, id, 'completed'),
-      };
-    });
+  const deleteCompletedItems = () => {
+    setTodoData((prevTodoData) => prevTodoData.filter((el) => !el.completed));
   };
 
-  render() {
-    const { todoData, filter } = this.state;
+  const onToogleCompleted = (id) => {
+    setTodoData((prevTodoData) => toogleProperty(prevTodoData, id, 'completed'));
+  };
 
-    let filteredTodos;
-    if (filter === 'active') {
-      filteredTodos = todoData.filter((todo) => !todo.completed);
-    } else if (filter === 'completed') {
-      filteredTodos = todoData.filter((todo) => todo.completed);
-    } else {
-      filteredTodos = todoData;
-    }
-
-    const completedCount = todoData.filter((todo) => todo.completed).length;
-    const unCompletedCount = todoData.length - completedCount;
-
-    return (
-      <section className="todoapp">
-        <Header onAddItem={this.onAddItem} />
-        <section className="main">
-          <TodoList
-            todos={filteredTodos}
-            onDeleted={this.deleteItem}
-            onToogleCompleted={this.onToogleCompleted}
-            onPlayClick={this.onPlayClick}
-            onPauseClick={this.onPauseClick}
-          />
-          <Footer
-            unCompletedCount={unCompletedCount}
-            todos={todoData}
-            onFiltterItems={this.onFiltterItems}
-            deleteCompletedItems={this.deleteCompletedItems}
-          />
-        </section>
-      </section>
-    );
+  let filteredTodos;
+  if (filter === 'active') {
+    filteredTodos = todoData.filter((todo) => !todo.completed);
+  } else if (filter === 'completed') {
+    filteredTodos = todoData.filter((todo) => todo.completed);
+  } else {
+    filteredTodos = todoData;
   }
-}
+
+  const completedCount = todoData.filter((todo) => todo.completed).length;
+  const unCompletedCount = todoData.length - completedCount;
+
+  return (
+    <section className="todoapp">
+      <Header onAddItem={onAddItem} />
+      <section className="main">
+        <TodoList
+          todos={filteredTodos}
+          onDeleted={deleteItem}
+          onToogleCompleted={onToogleCompleted}
+          onPlayClick={onPlayClick}
+          onPauseClick={onPauseClick}
+        />
+        <Footer
+          unCompletedCount={unCompletedCount}
+          todos={todoData}
+          onFiltterItems={onFiltterItems}
+          deleteCompletedItems={deleteCompletedItems}
+        />
+      </section>
+    </section>
+  );
+};
 
 createRoot(document.getElementById('root')).render(<App />);
