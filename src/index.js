@@ -9,8 +9,9 @@ import Footer from './footer/footer';
 import './index.css';
 
 const App = () => {
-  let maxId = 100;
+  const [filter, setFilter] = useState('all');
 
+  const [timerIntervals, setTimerIntervals] = useState({});
   const createTodoItem = (label, classic = 'view') => {
     return {
       label,
@@ -18,7 +19,7 @@ const App = () => {
       timeLabel: 'Created ' + formatDistanceToNow(new Date(), { includeSeconds: true }) + ' ago',
       timeReal: JSON.stringify(new Date()),
       completed: classic === 'completed' ? true : false,
-      id: maxId++,
+      id: Math.random() * 100,
       timerTime: 0,
     };
   };
@@ -28,10 +29,6 @@ const App = () => {
     createTodoItem('Editing task', 'editing'),
     createTodoItem('Active task', 'view'),
   ]);
-
-  const [filter, setFilter] = useState('all');
-
-  const [timerIntervals, setTimerIntervals] = useState({});
 
   const toogleProperty = (arr, id, propName) => {
     return arr.map((item) => {
